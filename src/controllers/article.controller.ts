@@ -115,8 +115,11 @@ export class ArticleController {
         status,
       } = req.body;
 
-      // Verify topic exists
-      const topic = await TopicModel.findById(topicId);
+      // Verify topic exists by id or slug
+      let topic = await TopicModel.findById(topicId);
+      if (!topic) {
+        topic = await TopicModel.findBySlug(topicId);
+      }
       if (!topic) {
         return next(ApiError.badRequest(`Invalid topicId: Topic '${topicId}' does not exist`));
       }
@@ -149,7 +152,7 @@ export class ArticleController {
         kicker,
         excerpt,
         content,
-        topicId,
+        topicId: topic.id,
         authorId: req.user.userId,
         publishedDate: finalPublishedDate,
         readTime: finalReadTime,
@@ -188,11 +191,23 @@ export class ArticleController {
         return next(ApiError.forbidden("You do not have permission to edit this article"));
       }
 
-      const updated = await ArticleModel.update(id, req.body);
+      const updateData = { ...req.body };
+      if (updateData.topicId) {
+        let topic = await TopicModel.findById(updateData.topicId);
+        if (!topic) {
+          topic = await TopicModel.findBySlug(updateData.topicId);
+        }
+        if (topic) {
+          updateData.topicId = topic.id;
+        }
+      }
+
+      const updated = await ArticleModel.update(id, updateData);
 
       return sendResponse(res, {
         statusCode: 200,
         message: "Article updated successfully",
+
         data: updated,
       });
     } catch (error) {
