@@ -12,18 +12,18 @@ const artThemes = [
 ] as const;
 
 export const createArticleSchema = z.object({
-  title: z.string().min(5, "Title must be at least 5 characters"),
-  slug: z.string().optional(),
-  kicker: z.string().min(2, "Kicker is required"),
-  excerpt: z.string().min(10, "Excerpt must be at least 10 characters"),
-  content: z.string().min(20, "Content must be at least 20 characters"),
-  topicId: z.string().min(1, "Topic ID is required"),
+  title: z.string().min(1, "প্রবন্ধের শিরোনাম আবশ্যক (Title is required)"),
+  slug: z.string().optional().nullable(),
+  kicker: z.string().optional().default("বিশেষ নিবন্ধ"),
+  excerpt: z.string().optional().default(""),
+  content: z.string().min(1, "প্রবন্ধের মূল বিষয়বস্তু আবশ্যক (Content is required)"),
+  topicId: z.string().optional().default("digital-wellness"),
   publishedDate: z.string().optional(),
   readTime: z.string().optional(),
   isFeatured: z.boolean().optional().default(false),
   isEditorPick: z.boolean().optional().default(false),
   isLeadCover: z.boolean().optional().default(false),
-  artTheme: z.enum(artThemes).optional().default("focus"),
+  artTheme: z.string().optional().default("focus"),
   status: z.enum(["draft", "published", "archived"]).optional().default("published"),
 });
 

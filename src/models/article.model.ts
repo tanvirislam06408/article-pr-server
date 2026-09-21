@@ -392,7 +392,8 @@ export class ArticleModel {
       FROM articles a
       LEFT JOIN topics t ON a.topic_id = t.id
       LEFT JOIN users u ON a.author_id = u.id
-      WHERE a.is_lead_cover = true AND a.status = 'published'
+      WHERE a.status = 'published'
+      ORDER BY a.is_lead_cover DESC, a.created_at DESC
       LIMIT 1
     `;
     const res = await query(sql);

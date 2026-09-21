@@ -115,13 +115,19 @@ export class ArticleController {
         status,
       } = req.body;
 
-      // Verify topic exists by id or slug
-      let topic = await TopicModel.findById(topicId);
-      if (!topic) {
+      // Verify topic exists by id or slug, or fallback to first topic
+      let topic = topicId ? await TopicModel.findById(topicId) : null;
+      if (!topic && topicId) {
         topic = await TopicModel.findBySlug(topicId);
       }
       if (!topic) {
-        return next(ApiError.badRequest(`Invalid topicId: Topic '${topicId}' does not exist`));
+        const allTopics = await TopicModel.findAll();
+        if (allTopics && allTopics.length > 0) {
+          topic = allTopics[0];
+        }
+      }
+      if (!topic) {
+        return next(ApiError.badRequest("No topic found in database. Please create a topic first."));
       }
 
       const generatedSlug = slug ? slugify(slug) : slugify(title);
@@ -133,9 +139,11 @@ export class ArticleController {
       const id = `art-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
       // Approximate read time in Bengali if not provided (assume 200 words/min)
-      const wordCount = content.trim().split(/\s+/).length;
+      const wordCount = (content || "").trim().split(/\s+/).length;
       const calcMinutes = Math.max(1, Math.ceil(wordCount / 200));
       const finalReadTime = readTime || `${calcMinutes} মিনিট পাঠ`;
+      const finalExcerpt = excerpt?.trim() || content.trim().substring(0, 160) + "...";
+      const finalKicker = kicker?.trim() || "বিশেষ নিবন্ধ";
 
       const finalPublishedDate =
         publishedDate ||
@@ -149,18 +157,18 @@ export class ArticleController {
         id,
         slug: finalSlug,
         title,
-        kicker,
-        excerpt,
+        kicker: finalKicker,
+        excerpt: finalExcerpt,
         content,
         topicId: topic.id,
         authorId: req.user.userId,
         publishedDate: finalPublishedDate,
         readTime: finalReadTime,
-        isFeatured,
-        isEditorPick,
-        isLeadCover,
-        artTheme,
-        status,
+        isFeatured: Boolean(isFeatured),
+        isEditorPick: Boolean(isEditorPick),
+        isLeadCover: Boolean(isLeadCover),
+        artTheme: artTheme || "focus",
+        status: status || "published",
       });
 
       return sendResponse(res, {
