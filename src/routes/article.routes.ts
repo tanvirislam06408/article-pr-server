@@ -19,6 +19,7 @@ router.get(
 
 router.get("/featured", ArticleController.getFeaturedArticles);
 router.get("/lead-cover", ArticleController.getLeadCover);
+router.post("/seed-master", ArticleController.seedMasterArticles);
 router.get("/:slug", ArticleController.getArticleBySlug);
 router.post("/:id/view", ArticleController.recordView);
 

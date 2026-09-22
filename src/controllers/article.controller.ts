@@ -272,4 +272,51 @@ export class ArticleController {
       next(error);
     }
   }
+
+  static async seedMasterArticles(_req: Request, res: Response, next: NextFunction) {
+    try {
+      const { MASTER_ARTICLES } = await import("../db/seed10Articles");
+      const { query } = await import("../config/db");
+
+      await query("DELETE FROM articles;");
+
+      const insertQuery = `
+        INSERT INTO articles (
+          id, slug, title, kicker, excerpt, content, topic_id, author_id, published_date, read_time, is_featured, is_editor_pick, is_lead_cover, art_theme, status, views
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        RETURNING id, title, slug;
+      `;
+
+      const results = [];
+      for (const art of MASTER_ARTICLES) {
+        const row = await query(insertQuery, [
+          art.id,
+          art.slug,
+          art.title,
+          art.kicker,
+          art.excerpt,
+          art.content,
+          art.topic_id,
+          art.author_id,
+          art.published_date,
+          art.read_time,
+          art.is_featured,
+          art.is_editor_pick,
+          art.is_lead_cover,
+          art.art_theme,
+          art.status,
+          art.views,
+        ]);
+        results.push(row.rows[0]);
+      }
+
+      return sendResponse(res, {
+        statusCode: 200,
+        message: "All 10 critical thinker articles seeded successfully",
+        data: results,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

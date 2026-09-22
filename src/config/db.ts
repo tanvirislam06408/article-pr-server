@@ -1,5 +1,8 @@
 import { Pool, QueryResult, QueryResultRow } from "pg";
+import dns from "dns";
 import { config } from "./env";
+
+dns.setDefaultResultOrder("ipv4first");
 
 const isRemoteOrSsl =
   config.databaseUrl.includes("sslmode=require") ||
@@ -13,7 +16,9 @@ export const pool = new Pool({
   ssl: isRemoteOrSsl ? { rejectUnauthorized: false } : undefined,
   max: config.nodeEnv === "production" ? 10 : 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  connectionTimeoutMillis: 15000,
+  // @ts-ignore
+  family: 4,
 });
 
 pool.on("error", (err) => {
