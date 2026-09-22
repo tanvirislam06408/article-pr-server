@@ -229,7 +229,7 @@ npm run dev
 
 # Server runs on http://localhost:5000
 # Health check: GET /api/v1/health
-# Default admin: admin@monon.mag / admin123
+# Super admin: mstanvirislam05@gmail.com / tanvir-admin
 ```
 
 ## Common Tasks

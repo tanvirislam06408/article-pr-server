@@ -1,5 +1,6 @@
 import express, { Application } from "express";
 import path from "path";
+import fs from "fs";
 import cors from "cors";
 import helmet from "helmet";
 
@@ -13,6 +14,9 @@ import { errorHandler } from "./middlewares/error.middleware";
 export const createApp = (): Application => {
   const app = express();
 
+  // Trust proxy for Vercel and reverse proxies
+  app.set("trust proxy", 1);
+
   // Security Middleware
   app.use(helmet());
 
@@ -25,7 +29,7 @@ export const createApp = (): Application => {
         if (config.corsOrigin.includes("*") || config.corsOrigin.includes(origin)) {
           return callback(null, true);
         }
-        return callback(null, true); // Permissive in dev, customize for strict prod
+        return callback(null, true); // Permissive in dev/serverless
       },
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -33,7 +37,7 @@ export const createApp = (): Application => {
     })
   );
 
-  // Rate limiting
+  // Rate limiting with disabled proxy validation (prevents Vercel crash)
   const limiter = rateLimit({
     windowMs: config.rateLimitWindowMs,
     max: config.rateLimitMax,
@@ -44,6 +48,10 @@ export const createApp = (): Application => {
     },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: {
+      xForwardedForHeader: false,
+      trustProxy: false,
+    },
   });
   app.use("/api", limiter);
 
@@ -57,19 +65,27 @@ export const createApp = (): Application => {
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // Static uploads directory
-  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+  const uploadsStaticPath = Boolean(process.env.VERCEL)
+    ? path.join("/tmp", "uploads")
+    : path.join(process.cwd(), "uploads");
+  try {
+    if (!fs.existsSync(uploadsStaticPath)) {
+      fs.mkdirSync(uploadsStaticPath, { recursive: true });
+    }
+  } catch (e) {}
+  app.use("/uploads", express.static(uploadsStaticPath));
 
   // API Routes
   app.use("/api/v1", apiRouter);
 
 
   // Root welcome route
-  app.get("/", (_req, res) => {
+  app.get(["/", "/api", "/api/index"], (_req, res) => {
     res.status(200).json({
       name: "মনন (MONON) API Server",
       description: "Journal of Mindful Living & Digital Wellness Backend",
       version: "1.0.0",
-      docs: "/api/v1/health",
+      health: "/api/v1/health",
     });
   });
 

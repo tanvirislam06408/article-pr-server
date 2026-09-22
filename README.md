@@ -78,9 +78,9 @@ Initialize the PostgreSQL schema and populate baseline Bengali topics, articles,
 npm run db:init
 ```
 
-> **Default Admin Account:**
-> - Email: `admin@monon.mag`
-> - Password: `admin123`
+> **Super Admin Account:**
+> - Email: `mstanvirislam05@gmail.com`
+> - Password: `tanvir-admin`
 
 ### 3. Start Development Server
 

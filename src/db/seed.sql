@@ -1,10 +1,9 @@
 -- Seed Data for Monon Platform
 
 -- 1. Insert Default Users (Admin & Authors)
--- Password for admin: "admin123" (bcrypt hash with salt 10) -> $2b$10$iM.g3g8yG9x23D26n3q0Z.8NqH3K1a2b3c4d5e6f7g8h9i0j1k2l3 or we hash dynamically in migrate.ts
 INSERT INTO users (id, name, email, password_hash, role, bio, avatar_url)
 VALUES 
-    ('usr-admin-1', 'এডমিন মনন', 'admin@monon.mag', '$2a$10$p3sZl8XQ1V4XFhVomr7/I.gU5yM5qKkYkW2J3e4r5t6y7u8i9o0p1', 'admin', 'মনন সাময়িকীর প্রধান সম্পাদক ও অ্যাডমিনিস্ট্রেটর', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
+    ('usr-admin-1', 'তানভীর হাসান (অ্যাডমিন)', 'mstanvirislam05@gmail.com', '$2a$10$p3sZl8XQ1V4XFhVomr7/I.gU5yM5qKkYkW2J3e4r5t6y7u8i9o0p1', 'admin', 'মনন সাময়িকীর প্রধান সম্পাদক ও অ্যাডমিনিস্ট্রেটর', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
     ('usr-author-1', 'ডা. রাইয়ান আহমেদ', 'rayan@monon.mag', '$2a$10$p3sZl8XQ1V4XFhVomr7/I.gU5yM5qKkYkW2J3e4r5t6y7u8i9o0p1', 'author', 'আচরণগত মনস্তত্ত্ব ও নিউরোসায়েন্স গবেষক', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'),
     ('usr-author-2', 'ফারহানা ইয়াসমিন', 'farhana@monon.mag', '$2a$10$p3sZl8XQ1V4XFhVomr7/I.gU5yM5qKkYkW2J3e4r5t6y7u8i9o0p1', 'author', 'ক্লিনিক্যাল সাইকোলজিস্ট ও কাউন্সিলর', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'),
     ('usr-author-3', 'তানজিম হোসাইন', 'tanzim@monon.mag', '$2a$10$p3sZl8XQ1V4XFhVomr7/I.gU5yM5qKkYkW2J3e4r5t6y7u8i9o0p1', 'author', 'সফটওয়্যার ইঞ্জিনিয়ার ও ডিপ ওয়ার্ক প্র্যাকটিশনার', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150')

@@ -1,11 +1,19 @@
 import { Pool, QueryResult, QueryResultRow } from "pg";
 import { config } from "./env";
 
+const isRemoteOrSsl =
+  config.databaseUrl.includes("sslmode=require") ||
+  config.databaseUrl.includes("neon.tech") ||
+  config.databaseUrl.includes("aws.neon.tech") ||
+  config.databaseUrl.includes("pooler.") ||
+  config.nodeEnv === "production";
+
 export const pool = new Pool({
   connectionString: config.databaseUrl,
-  max: 20,
+  ssl: isRemoteOrSsl ? { rejectUnauthorized: false } : undefined,
+  max: config.nodeEnv === "production" ? 10 : 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  connectionTimeoutMillis: 10000,
 });
 
 pool.on("error", (err) => {

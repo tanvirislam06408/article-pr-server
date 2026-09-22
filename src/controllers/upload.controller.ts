@@ -5,9 +5,17 @@ import fs from "fs";
 import { ApiError } from "../utils/apiError";
 import { sendResponse } from "../utils/apiResponse";
 
-const uploadDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const isVercel = Boolean(process.env.VERCEL);
+const uploadDir = isVercel
+  ? path.join("/tmp", "uploads")
+  : path.join(process.cwd(), "uploads");
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn("Notice: Could not create upload directory synchronously:", e);
 }
 
 const storage = multer.diskStorage({

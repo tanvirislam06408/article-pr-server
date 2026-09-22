@@ -18,7 +18,8 @@ export const runMigrations = async (shouldSeed = false) => {
       const seedSql = fs.readFileSync(seedPath, "utf-8");
 
       // Hash default admin and author passwords properly
-      const defaultPasswordHash = await hashPassword("admin123");
+      const adminPassword = process.env.ADMIN_PASSWORD || "tanvir-admin";
+      const defaultPasswordHash = await hashPassword(adminPassword);
       const processedSeedSql = seedSql.replace(
         /\$2a\$10\$p3sZl8XQ1V4XFhVomr7\/I\.gU5yM5qKkYkW2J3e4r5t6y7u8i9o0p1/g,
         defaultPasswordHash
@@ -26,7 +27,7 @@ export const runMigrations = async (shouldSeed = false) => {
 
       await query(processedSeedSql);
       console.log("✅ Database seeded successfully with initial topics and articles.");
-      console.log("👤 Default Admin: admin@monon.mag / admin123");
+      console.log("👤 Default Admin Initialized");
     }
 
     console.log("🎉 Migration process completed!");
