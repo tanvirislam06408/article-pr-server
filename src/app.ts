@@ -18,24 +18,23 @@ export const createApp = (): Application => {
   app.set("trust proxy", 1);
 
   // Security Middleware
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+      crossOriginOpenerPolicy: { policy: "unsafe-none" },
+    })
+  );
 
   // CORS configuration
   app.use(
     cors({
-      origin: (origin, callback) => {
-        // allow requests with no origin (like mobile apps, curl, postman)
-        if (!origin) return callback(null, true);
-        if (config.corsOrigin.includes("*") || config.corsOrigin.includes(origin)) {
-          return callback(null, true);
-        }
-        return callback(null, true); // Permissive in dev/serverless
-      },
+      origin: true, // Allow all origins reflectively with credentials
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     })
   );
+  app.options("*", cors() as any);
 
   // Rate limiting with disabled proxy validation (prevents Vercel crash)
   const limiter = rateLimit({
